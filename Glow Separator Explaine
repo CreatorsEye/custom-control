@@ -1,0 +1,136 @@
+Namespace and Using Directives
+
+using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
+These using directives include the necessary namespaces for creating Windows Forms applications, handling graphics, and defining components.
+
+Class Definition
+
+namespace CreatorsEye
+{
+    public class GlowSeparator : Control
+    {
+This snippet defines the GlowSeparator class within the CreatorsEye namespace. The class inherits from Control, meaning it is a custom control that can be added to a Windows Forms application.
+
+Private Fields
+
+private int glowSize = 7;
+private int lineSize = 1;
+private Color glowColor = Color.FromArgb(24, 198, 5);
+private Orientation orientation = Orientation.Horizontal;
+These private fields store the properties of the GlowSeparator control:
+
+glowSize: The size of the glow effect around the separator line.
+lineSize: The thickness of the separator line.
+glowColor: The color of the glow and the line itself.
+orientation: Determines whether the separator is horizontal or vertical.
+Properties
+BackColor Property
+
+[Browsable(false)] // This hides the property from property grid
+public new Color BackColor
+{
+    get { return base.BackColor; }
+    set { base.BackColor = value; }
+}
+This property hides the base class BackColor property from the property grid in design mode, as it's not relevant to the appearance of the GlowSeparator.
+
+Enumeration for Orientation
+
+public enum Orientation
+{
+    Horizontal,
+    Vertical
+}
+An enum named Orientation is defined to specify the direction of the separator line.
+
+Public Properties
+
+public int GlowSize
+{
+    get { return glowSize; }
+    set { glowSize = value; Invalidate(); }
+}
+
+public int LineSize
+{
+    get { return lineSize; }
+    set { lineSize = value; Invalidate(); }
+}
+
+public Color GlowColor
+{
+    get { return glowColor; }
+    set { glowColor = value; Invalidate(); }
+}
+
+public Orientation SeparatorOrientation
+{
+    get { return orientation; }
+    set { orientation = value; Invalidate(); }
+}
+These properties expose the private fields to allow customization of the GlowSeparator:
+
+GlowSize: Adjusts the glow size and triggers a repaint (Invalidate).
+LineSize: Adjusts the line thickness and triggers a repaint.
+GlowColor: Sets the color of the glow and the line and triggers a repaint.
+SeparatorOrientation: Sets the orientation (horizontal or vertical) and triggers a repaint.
+Constructor
+
+public GlowSeparator()
+{
+    SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+    BackColor = Color.Transparent;
+}
+The constructor initializes the control:
+
+SetStyle(ControlStyles.SupportsTransparentBackColor, true): Allows the control to have a transparent background.
+BackColor = Color.Transparent: Sets the default background color to transparent.
+OnPaint Method
+
+protected override void OnPaint(PaintEventArgs e)
+{
+    base.OnPaint(e);
+    Graphics g = e.Graphics;
+    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+    // Draw the glow
+    using (Pen glowPen = new Pen(Color.FromArgb(128, glowColor), glowSize))
+    {
+        glowPen.LineJoin = System.Drawing.Drawing2D.LineJoin.Round;
+        if (orientation == Orientation.Horizontal)
+        {
+            g.DrawLine(glowPen, new Point(0, Height / 2), new Point(Width, Height / 2));
+        }
+        else
+        {
+            g.DrawLine(glowPen, new Point(Width / 2, 0), new Point(Width / 2, Height));
+        }
+    }
+
+    // Draw the line
+    using (Pen linePen = new Pen(glowColor, lineSize))
+    {
+        if (orientation == Orientation.Horizontal)
+        {
+            g.DrawLine(linePen, new Point(0, Height / 2), new Point(Width, Height / 2));
+        }
+        else
+        {
+            g.DrawLine(linePen, new Point(Width / 2, 0), new Point(Width / 2, Height));
+        }
+    }
+}
+This method handles the painting of the GlowSeparator control:
+
+Graphics g = e.Graphics;: Gets the graphics object for drawing.
+g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;: Applies anti-aliasing for smoother lines.
+Drawing the Glow
+A semi-transparent pen (glowPen) is created to draw the glow effect. Its color is a transparent version of glowColor with glowSize thickness.
+Depending on the orientation, it draws the glow effect as either a horizontal or vertical line.
+Drawing the Line
+A solid pen (linePen) is created to draw the actual separator line. It uses glowColor and lineSize.
+The line is drawn in the same orientation as the glow.
+In summary, the GlowSeparator control is a customizable separator line with a glowing effect, which can be oriented horizontally or vertically. It allows developers to set the glow size, line size, color, and orientation through its public properties.
