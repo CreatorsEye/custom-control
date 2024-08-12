@@ -1,0 +1,95 @@
+using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace CreatorsEye
+{
+
+
+    public class GlowSeparator : Control
+    {
+        private int glowSize = 7;
+        private int lineSize = 1;
+        private Color glowColor = Color.FromArgb(24, 198, 5);
+        private Orientation orientation = Orientation.Horizontal;
+
+        [Browsable(false)] // This hides the property from property grid
+        public new Color BackColor
+        {
+            get { return base.BackColor; }
+            set { base.BackColor = value; }
+        }
+
+        public enum Orientation
+        {
+            Horizontal,
+            Vertical
+        }
+
+        public int GlowSize
+        {
+            get { return glowSize; }
+            set { glowSize = value; Invalidate(); }
+        }
+
+        public int LineSize
+        {
+            get { return lineSize; }
+            set { lineSize = value; Invalidate(); }
+        }
+
+        public Color GlowColor
+        {
+            get { return glowColor; }
+            set { glowColor = value; Invalidate(); }
+        }
+
+        public Orientation SeparatorOrientation
+        {
+            get { return orientation; }
+            set { orientation = value; Invalidate(); }
+        }
+
+        public GlowSeparator()
+        {
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            BackColor = Color.Transparent;
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            Graphics g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            // Draw the glow
+            using (Pen glowPen = new Pen(Color.FromArgb(128, glowColor), glowSize))
+            {
+                glowPen.LineJoin = System.Drawing.Drawing2D.LineJoin.Round;
+                if (orientation == Orientation.Horizontal)
+                {
+                    g.DrawLine(glowPen, new Point(0, Height / 2), new Point(Width, Height / 2));
+                }
+                else
+                {
+                    g.DrawLine(glowPen, new Point(Width / 2, 0), new Point(Width / 2, Height));
+                }
+            }
+
+            // Draw the line
+            using (Pen linePen = new Pen(glowColor, lineSize))
+            {
+                if (orientation == Orientation.Horizontal)
+                {
+                    g.DrawLine(linePen, new Point(0, Height / 2), new Point(Width, Height / 2));
+                }
+                else
+                {
+                    g.DrawLine(linePen, new Point(Width / 2, 0), new Point(Width / 2, Height));
+                }
+            }
+        }
+    }
+
+}
