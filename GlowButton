@@ -1,0 +1,110 @@
+using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Windows.Forms;
+namespace ce
+{
+    public class GlowButton : Button
+    {
+        private bool isMouseOver = false;
+        private int glowSize = 7; // Default glow size
+        private Color glowcolor = Color.FromArgb(1, 197, 82);
+
+
+        public GlowButton()
+        {
+
+            this.FlatStyle = FlatStyle.Flat;
+            this.Size = new Size(150, 40);
+            BackColor = Color.FromArgb(45, 61, 79);
+            // Create a new font with size 10 and bold style
+            using (Font font = new Font(this.Font.FontFamily, 10, FontStyle.Bold))
+
+                ForeColor = Color.White;
+
+
+        }
+
+
+        public Color GlowColor
+        { 
+        get {  return glowcolor; } set { glowcolor = value; Invalidate(); }
+        
+        }
+        public int GlowSize
+        {
+            get { return glowSize; }
+            set { glowSize = value; Invalidate(); } // Redraw the button when the glow size changes
+        }
+
+        protected override void OnPaint(PaintEventArgs pevent)
+        {
+            base.OnPaint(pevent);
+
+            Graphics g = pevent.Graphics;
+            Rectangle rect = this.ClientRectangle;
+
+            // Draw the button background
+            g.FillRectangle(new SolidBrush(this.BackColor), rect);
+
+            // Draw the glow effect if the mouse is over the button
+            if (isMouseOver)
+            {
+                using (Pen glowPen = new Pen(Color.FromArgb(255,glowcolor), glowSize))
+                {
+                    g.DrawRectangle(glowPen, rect);
+                }
+
+                // Draw the glow effect on the text
+                //   DrawGlowingText(g, this.Text, this.Font, rect, Color.Yellow);
+                TextRenderer.DrawText(g, this.Text, this.Font, rect, glowcolor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            }
+            else
+            {
+                // Draw the normal text
+                TextRenderer.DrawText(g, this.Text, this.Font, rect, this.ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            }
+        }
+
+        private void DrawGlowingText(Graphics g, string text, Font font, Rectangle rect, Color glowColor)
+        {
+            using (GraphicsPath path = new GraphicsPath())
+            {
+                path.AddString(text, font.FontFamily, (int)font.Style, font.Size, rect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+
+                using (PathGradientBrush brush = new PathGradientBrush(path))
+                {
+                    brush.CenterColor = glowColor;
+                    brush.SurroundColors = new Color[] { Color.FromArgb(0, glowColor) };
+                    brush.FocusScales = new PointF(0.5f, 0.5f);
+
+                    g.FillPath(brush, path);
+                }
+
+                // Draw the text over the glow
+                g.DrawPath(Pens.Black, path);
+                g.FillPath(new SolidBrush(this.ForeColor), path);
+            }
+        }
+
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            isMouseOver = false;
+            this.Invalidate(); // Redraw the button
+        }
+        protected override void OnMouseDown(MouseEventArgs mevent)
+        {
+            isMouseOver = true;
+            base.OnMouseDown(mevent);
+            this.Invalidate(); // Redraw the button
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            isMouseOver = false;
+            this.Invalidate(); // Redraw the button
+        }
+    }
+}
